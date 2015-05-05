@@ -9,7 +9,7 @@ import reversi.pieces.Board;
 
 public class reversi {
 
-	final static boolean LOCAL_TEST = true;
+	final static boolean LOCAL_TEST = false;
 	private final static String[] testCases = {"StartBoard"};
 	private final static String testName = testCases[0] ;
 	//final static File testFile1 = new File("src/testFile.readBoard");
@@ -23,8 +23,10 @@ public class reversi {
 
 		rawBoard = parseBoard();
 		
-		System.out.println("********** Raw Matrix **********");
-		printMatrix(rawBoard);
+		if(LOCAL_TEST){
+			System.out.println("********** Raw Matrix **********");
+			printMatrix(rawBoard);
+		}
 
 		myBoard = new Board(rawBoard);
 		myBoard.makeMove();

@@ -22,6 +22,7 @@ import reversi.move.Move;
 import reversi.move.MoveComparator;
 
 public class Board {
+	final static boolean LOCAL_TEST = false; 
 	private final int NO_MOVE_SCORE = 20;
 	private final int CUT_VAL = 15;
 	private final int DEPTH = 6;
@@ -40,11 +41,13 @@ public class Board {
 		scoreChart = new Score(this);
 		possibleMoves = computePossibleMoves(1);
 		
-		System.out.println("********** Score Chart **********");
-		printMatrix(scoreChart.getChart());
-		
-		System.out.println("********** First Possible Moves **********");
-		print(possibleMoves);
+		if(LOCAL_TEST){
+			System.out.println("********** Score Chart **********");
+			printMatrix(scoreChart.getChart());
+			
+			System.out.println("********** First Possible Moves **********");
+			print(possibleMoves);
+		}
 	}
 	
 	/**********************************************************
@@ -74,7 +77,10 @@ public class Board {
 			
 			calculateConsequences(possibleMoves, DEPTH-1, 0, 1);// < - - - USE THIS ONE
 			Collections.sort(possibleMoves, new MoveComparator());
-			//System.out.println(possibleMoves);
+			if(LOCAL_TEST){
+				System.out.println("Final Scores");
+				System.out.println(possibleMoves);
+			}
 			possibleMoves.get(0).printMove();			
 		} else {
 			System.out.println("Pass!");
