@@ -32,10 +32,12 @@ public class Score {
 	}
 	
 	public void adjustChart(int row, int col){
+		return;
+		//throw new UnsupportedOperationException("adjust chart has been deprecated");
 		/****************************************
 		 * Adjust score chart based on corners
 		 ****************************************/
-		switch (row) {
+		/*switch (row) {
 			case 1:	
 				if(col == 4) {
 					scores[2][3]*=-1;
@@ -92,7 +94,7 @@ public class Score {
 					scores[7][12]*=-1;
 					scores[8][10]*=-1;
 				} break;
-		}
+		}*/
 	}
 	
 	//This is where we will have check for how the score should change based on the current board input
@@ -104,22 +106,28 @@ public class Score {
 		int rowLength = 2;
 		int wallLength = 10;
 		
-		for (int i = 0; i < 12; i++) {
+		for (int row = 0; row < 12; row++) {
 			//If above or below board, set just walls
-			if (i == 0 || i == 11) {
-				for (int j = 0; j < 22; j++) {
-					scores[i][j] = 0;
+			if (row == 0 || row == 11) {
+				for (int col = 0; col < 22; col++) {
+					scores[row][col] = 0;
 				}
 			} else { //Else set walls for wall length value
-				for (int j = 0; j < wallLength; j++) {
-					scores[i][j] = 0;
+				for (int col = 0; col < wallLength; col++) {
+					scores[row][col] = 0;
 				}
 				//Then set rest of board to correct input based on 0,1, or 2
-				for (int j = wallLength; j < rowLength + wallLength; j++) {
-					scores[i][j] = 1;
+				for (int col = wallLength; col < rowLength + wallLength; col++) {
+					if(row == 1){//corner piece
+						scores[row][col] = 999;
+					} else if(row == 10 && (col == 1 || col == 20)){
+						scores[row][col] = 999;
+					} else {
+						scores[row][col] = 1;
+					}
 				}
-				for (int j = (wallLength) + rowLength; j < 22; j++) {
-					scores[i][j] = 0;
+				for (int col = (wallLength) + rowLength; col < 22; col++) {
+					scores[row][col] = 0;
 				}
 				rowLength += 2;
 				wallLength -= 1;
