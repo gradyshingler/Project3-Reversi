@@ -23,9 +23,12 @@ import reversi.move.MoveComparator;
 
 public class Board {
 	final static boolean LOCAL_TEST = false; 
-	private final int NO_MOVE_SCORE = 20;
-	private final int CUT_VAL = 15;
+	private final int NO_MOVE_SCORE = 1000;
+	private final int CUT_VAL = 8;
 	private final int DEPTH = 6;
+	private final int END_GAME_VAL = 15; //Empty Spaces val that signifies end game
+	private int initialDiskCount = 0;
+	private final boolean isEndGame;
 	
 	Disk[][] board = new Disk[12][22];
 	public ArrayList<Disk> blackDisks = new ArrayList<Disk>(); //defined as my disks
@@ -38,6 +41,8 @@ public class Board {
 	 **********************************************************/
 	public Board(int[][] array) {
 		parseToBoardObject(array);
+		initialDiskCount = whiteDisks.size() + blackDisks.size();
+		isEndGame = (initialDiskCount > (110 - END_GAME_VAL));
 		scoreChart = new Score(this);
 		possibleMoves = computePossibleMoves(1);
 		
@@ -78,7 +83,7 @@ public class Board {
 			calculateConsequences(possibleMoves, DEPTH-1, 0, 1);// < - - - USE THIS ONE
 			Collections.sort(possibleMoves, new MoveComparator());
 			if(LOCAL_TEST){
-				System.out.println("Final Scores");
+				System.out.println("********** Final Scores **********");
 				System.out.println(possibleMoves);
 			}
 			possibleMoves.get(0).printMove();			
@@ -91,6 +96,8 @@ public class Board {
 	 * Calculate Consequences Method
 	 **********************************************************/
 	private void calculateConsequences(List<Move> moves, int depth, int pruneVal, int player){
+		int mobScore = 0;
+		
 		player = (player%2)+1; //This shenanighans maps 1->2 or 2->1
 		//p("newPlayer: "+player+" search depth: "+depth,pruneVal);
 		pruneVal++;
@@ -99,6 +106,7 @@ public class Board {
 			execute(currMove);
 			//p("If player<"+((player%2)+1)+"> moves "+currMove+" then player<"+player+"> can move:",pruneVal);
 			List<Move> nextMoves = computePossibleMoves(player);
+			mobScore = (nextMoves.size()*-100);
 			if(nextMoves.size() != 0){
 				for(int i=0;i<nextMoves.size();i++){
 					getMoveScore(nextMoves.get(i));
@@ -116,10 +124,14 @@ public class Board {
 				//p("  but player<"+player+">'s best move is: "+minMaxMove,pruneVal);
 				int tempCons = ((minMaxMove.positionScore+minMaxMove.consequenceScore)*-1);
 				//p("  and because depth is 0 we stop here and set player<"+((player%2)+1)+">'s consequence score for"+currMove+" to: "+tempCons, pruneVal);
-				currMove.consequenceScore = (tempCons);
+				if(isEndGame){
+					currMove.consequenceScore = (tempCons);
+				} else {
+					currMove.consequenceScore = (tempCons)+mobScore;
+				}
 			} else {
 				//p("  player<"+player+"> has no moves so we set  player<"+((player%2)+1)+">'s consequence score to:"+NO_MOVE_SCORE,pruneVal);
-				currMove.consequenceScore = NO_MOVE_SCORE; 
+				currMove.consequenceScore = NO_MOVE_SCORE*depth; 
 			}
 			undo(currMove);
 		}
@@ -282,7 +294,7 @@ public class Board {
 	
 	/**********************************************************
 	 * Compute A Moves Position Score and sets the move score to that value
-	 * has a side effect of setting moves position score as well
+	 * has a side effect of setting moves position score
 	 **********************************************************/
 	public int getMoveScore(Move move){
 		TreeMap<Direction, Integer> flips = move.getFlips();
